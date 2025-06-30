@@ -1,92 +1,108 @@
 ﻿Imports System.Globalization
 Imports System.Net.Http
 Imports System.Text
+Imports System.Text.Json
 Imports System.Text.Json.Nodes
 Imports RewstFolders.Folders
 
 Public Class Form1
     Private workflowJson As JsonObject
     Private nameIndex As New Dictionary(Of String, List(Of TreeNode))
+    Private tagList As New Dictionary(Of String, JsonObject)
 
     Private Function LoadFolders() As FolderCollection
         Dim folders As New Folders.FolderCollection
 
-        If workflowJson IsNot Nothing Then
-            Dim items = workflowJson.Item("result").AsArray()
-            For Each item In items
-                Dim itemName = item.Item("name").AsValue.ToString.Trim
-                If itemName.StartsWith("[") Then
-                    Dim newtag = NormalizeName(itemName.Substring(1, itemName.IndexOf("]") - 1))
-                    For Each t In item.Item("tags").AsArray()
-                        If NormalizeName(t.Item("name").AsValue.ToString) = newtag Then
-                            newtag = String.Empty
-                            Exit For
-                        End If
-                    Next
-                    If Not String.IsNullOrEmpty(newtag) Then
-                        Dim itemArray = item.Item("tags").AsArray()
-                        itemArray.Add(New JsonObject From {{"name", newtag}})
-                        If newtag.ToLower.StartsWith("rewst") Then
-                            itemArray.Insert(0, New JsonObject From {{"name", "Rewst"}})
-                        End If
-                    Else
-                        If itemName.Trim.ToLower.StartsWith("rewst") Then
-                            Dim itemTags = item.Item("tags").AsArray()
-                            itemTags.Insert(0, New JsonObject From {{"name", "Rewst"}})
-                        End If
-                    End If
-                End If
-
-                Dim tags = (From t In item.Item("tags").AsArray Select NormalizeName(t.Item("name").AsValue.ToString))
-                Dim index As New TagIndex(tags)
-                Dim folder As Folders.Folder
-                If folders.Contains(index) Then
-                    folder = folders(index)
-                Else
-                    folder = New Folders.Folder
-                    folder.Name = itemName
-                    folder.Index = index
-                    folders.Add(folder)
-                End If
-            Next
-
-            If folders.Count > 0 Then
-                TreeView1.Nodes.Clear()
-
+        Try
+            If workflowJson.ContainsKey("error") Then
+                MessageBox.Show($"Error loading workflows: {vbCrLf}{workflowJson.Item("error").AsValue.ToString}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Return folders
+            End If
+            If workflowJson IsNot Nothing Then
+                Dim items = workflowJson.Item("result").AsArray()
                 For Each item In items
-                    Dim itemTags = (From t In item.Item("tags").AsArray Select NormalizeName(t.Item("name").AsValue.ToString))
-                    Dim itemIndex As New TagIndex(itemTags)
-                    Dim nodeName = Convert.ToBase64String(Encoding.UTF8.GetBytes(item.Item("name").AsValue.ToJsonString))
-                    If itemIndex.Count = 0 Then
-                        Dim workflowNode As New TreeNode(item.Item("name").AsValue.ToString) With {.ImageIndex = 2, .SelectedImageIndex = 2, .Tag = item, .Name = nodeName}
-                        TreeView1.Nodes.Add(workflowNode)
-                        AddToIndex(workflowNode)
-                    Else
-                        For Each folder In folders
-                            If folder.Index.Equals(itemIndex) Then
-                                Dim curNodes = TreeView1.Nodes
-                                Dim tags = folder.Index.ToList()
-                                For Each t In tags
-                                    Dim keyName = Convert.ToBase64String(Encoding.UTF8.GetBytes(t))
-                                    If Not curNodes.ContainsKey(keyName) Then
-                                        Dim newNode = New TreeNode(t) With {.ImageIndex = 0, .SelectedImageIndex = 0, .Name = keyName}
-                                        curNodes.Add(newNode)
-                                        curNodes = newNode.Nodes
-                                    Else
-                                        curNodes = curNodes(keyName).Nodes
-                                    End If
-                                Next
-                                If Not curNodes.ContainsKey(nodeName) Then
-                                    Dim workflowNode As New TreeNode(item.Item("name").AsValue.ToString) With {.ImageIndex = 2, .SelectedImageIndex = 2, .Tag = item, .Name = nodeName}
-                                    curNodes.Add(workflowNode)
-                                    AddToIndex(workflowNode)
-                                End If
+                    Dim itemName = item.Item("name").AsValue.ToString.Trim
+                    If itemName.StartsWith("[") Then
+                        Dim newtag = NormalizeName(itemName.Substring(1, itemName.IndexOf("]") - 1))
+                        For Each t In item.Item("tags").AsArray()
+                            If NormalizeName(t.Item("name").AsValue.ToString) = newtag Then
+                                newtag = String.Empty
+                                Exit For
                             End If
                         Next
+                        If Not String.IsNullOrEmpty(newtag) Then
+                            Dim itemArray = item.Item("tags").AsArray()
+                            itemArray.Add(New JsonObject From {{"name", newtag}})
+                            If newtag.ToLower.StartsWith("rewst") Then
+                                itemArray.Insert(0, New JsonObject From {{"name", "Rewst"}})
+                            End If
+                        Else
+                            If itemName.Trim.ToLower.StartsWith("rewst") Then
+                                Dim itemTags = item.Item("tags").AsArray()
+                                itemTags.Insert(0, New JsonObject From {{"name", "Rewst"}})
+                            End If
+                        End If
+                    End If
+                    For Each t In item.Item("tags").AsArray
+                        If Not tagList.ContainsKey(t.Item("name").AsValue.ToString) Then
+                            tagList.Add(t.Item("name").AsValue.ToString, t)
+                        End If
+                    Next
+                    Dim tags = (From t In item.Item("tags").AsArray Select NormalizeName(t.Item("name").AsValue.ToString))
+                    Dim index As New TagIndex(tags)
+                    If Not folders.Contains(index) Then
+                        Dim Folder = New Folders.Folder
+                        Folder.Name = itemName
+                        Folder.Index = index
+                        folders.Add(Folder)
                     End If
                 Next
+
+                If folders.Count > 0 Then
+                    TreeView1.Nodes.Clear()
+
+                    For Each item In items
+                        Dim itemTags = (From t In item.Item("tags").AsArray Select NormalizeName(t.Item("name").AsValue.ToString))
+                        Dim itemIndex As New TagIndex(itemTags)
+                        Dim nodeName = Convert.ToBase64String(Encoding.UTF8.GetBytes(item.Item("name").AsValue.ToJsonString))
+                        If itemIndex.Count = 0 Then
+                            Dim workflowNode As New TreeNode(item.Item("name").AsValue.ToString) With {.ImageIndex = 2, .SelectedImageIndex = 2, .Tag = item, .Name = nodeName}
+                            TreeView1.Nodes.Add(workflowNode)
+                            AddToIndex(workflowNode)
+                        Else
+                            For Each folder In folders
+                                If folder.Index.Equals(itemIndex) Then
+                                    Dim curNodes = TreeView1.Nodes
+                                    Dim tags = folder.Index.ToList()
+                                    For Each t In tags
+                                        Dim keyName = Convert.ToBase64String(Encoding.UTF8.GetBytes(t))
+                                        If Not curNodes.ContainsKey(keyName) Then
+                                            Dim newNode = New TreeNode(t) With {.ImageIndex = 0, .SelectedImageIndex = 0, .Name = keyName}
+                                            curNodes.Add(newNode)
+                                            curNodes = newNode.Nodes
+                                        Else
+                                            curNodes = curNodes(keyName).Nodes
+                                        End If
+                                    Next
+                                    If Not curNodes.ContainsKey(nodeName) Then
+                                        Dim workflowNode As New TreeNode(item.Item("name").AsValue.ToString) With {.ImageIndex = 2, .SelectedImageIndex = 2, .Tag = item, .Name = nodeName}
+                                        curNodes.Add(workflowNode)
+                                        AddToIndex(workflowNode)
+                                    End If
+                                End If
+                            Next
+                        End If
+                    Next
+                End If
+
+                For Each t In From k In tagList.Keys Order By k
+                    TagsListBox.Items.Add(t)
+                Next
             End If
-        End If
+        Catch ex As Exception
+            MessageBox.Show($"Error loading folders: {vbCrLf}{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+
         Return folders
     End Function
 
@@ -126,6 +142,21 @@ Public Class Form1
         nameIndex(node.Text).Add(node)
     End Sub
 
+    Private Function GetNodeUrl(node As TreeNode) As String
+        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is JsonObject Then
+            Dim item As JsonObject = CType(node.Tag, JsonObject)
+            Return $"https://app.rewst.io/organizations/{item.Item("org").Item("id").AsValue.ToString}/workflows/{item.Item("id").AsValue.ToString}"
+        End If
+        Return String.Empty
+    End Function
+
+    Private Sub NavigateToNode(node As TreeNode)
+        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is JsonObject Then
+            Dim url As String = GetNodeUrl(node)
+            Process.Start(New ProcessStartInfo("cmd", $"/c start {url}") With {.CreateNoWindow = True, .UseShellExecute = False})
+        End If
+    End Sub
+
     Private Async Sub LoadFoldersToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadFoldersToolStripMenuItem.Click
         LoadFoldersToolStripMenuItem.Enabled = False
         Me.Cursor = Cursors.WaitCursor
@@ -158,23 +189,19 @@ Public Class Form1
     End Sub
 
     Private Sub TreeView1_DoubleClick(sender As Object, e As EventArgs) Handles TreeView1.DoubleClick
-        Dim node = TreeView1.SelectedNode
-        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is JsonObject Then
-            Dim item As JsonObject = CType(node.Tag, JsonObject)
-            Dim url As String = $"https://app.rewst.io/organizations/{item.Item("org").Item("id").AsValue.ToString}/workflows/{item.Item("id").AsValue.ToString}"
-            Process.Start("cmd.exe", $"/c start {url}")
-        End If
+        NavigateToNode(TreeView1.SelectedNode)
     End Sub
 
     Private Sub SettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SettingsToolStripMenuItem.Click
         Using dlg As New SettingsDialog
             If dlg.ShowDialog(Me) = DialogResult.OK Then
                 Me.Font = My.Settings.Font
-                If My.Settings.DarkMode Then
-                    SettingsDialog.SetDarkMode(Me, True)
-                Else
-                    SettingsDialog.SetDarkMode(Me, False)
-                End If
+                'This didn't work, but the setting still exists along with the attempt to implement it.
+                'If My.Settings.DarkMode Then
+                '    SettingsDialog.SetDarkMode(Me, True)
+                'Else
+                '    SettingsDialog.SetDarkMode(Me, False)
+                'End If
             End If
         End Using
     End Sub
@@ -253,5 +280,74 @@ Public Class Form1
 
     Private Sub ExpandAllToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExpandAllToolStripMenuItem.Click
         TreeView1.ExpandAll()
+    End Sub
+
+    Private Sub TagListToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TagListToolStripMenuItem.Click
+        ContentSplitContainer.Panel1Collapsed = Not TagListToolStripMenuItem.Checked
+    End Sub
+
+    Private Sub TagsListBox_DoubleClick(sender As Object, e As EventArgs) Handles TagsListBox.DoubleClick
+        If TagsListBox.SelectedItem IsNot Nothing Then
+            Dim found = TreeView1.Nodes.Find(Convert.ToBase64String(Encoding.UTF8.GetBytes(TagsListBox.SelectedItem.ToString)), True).ToList()
+            For i = 0 To found.Count - 1
+                If found(i).IsSelected Then
+                    If i = found.Count - 1 Then i = 0 Else i += 1
+                    TreeView1.SelectedNode = found(i)
+                    TreeView1.SelectedNode.EnsureVisible()
+                    Exit Sub
+                End If
+            Next
+            If found.Count > 0 Then
+                TreeView1.SelectedNode = found(0)
+                TreeView1.SelectedNode.EnsureVisible()
+            End If
+        End If
+    End Sub
+
+    Private Sub CopyToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyToolStripMenuItem.Click
+        Clipboard.SetText(GetNodeUrl(TreeView1.SelectedNode))
+    End Sub
+
+    Private Sub GoToToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GoToToolStripMenuItem.Click
+        NavigateToNode(TreeView1.SelectedNode)
+    End Sub
+
+    Private Sub ContextMenuStrip1_Opening(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles ContextMenuStrip1.Opening
+        If TreeView1.SelectedNode IsNot Nothing Then
+            Dim item As JsonObject = TryCast(TreeView1.SelectedNode.Tag, JsonObject)
+            If item IsNot Nothing Then
+                GoToToolStripMenuItem.Enabled = True
+                CopyToolStripMenuItem.Enabled = True
+            Else
+                GoToToolStripMenuItem.Enabled = False
+                CopyToolStripMenuItem.Enabled = False
+            End If
+        Else
+            GoToToolStripMenuItem.Enabled = False
+            CopyToolStripMenuItem.Enabled = False
+        End If
+    End Sub
+
+    Private Sub TreeView1_AfterSelect(sender As Object, e As TreeViewEventArgs) Handles TreeView1.AfterSelect
+        If TreeView1.SelectedNode IsNot Nothing Then
+            Dim level As TreeNode = TreeView1.SelectedNode
+            Dim path As New StringBuilder
+            While level IsNot Nothing
+                If path.Length > 0 Then
+                    path.Insert(0, "\")
+                End If
+                path.Insert(0, level.Text)
+                level = level.Parent
+            End While
+            PathLabel.Text = path.ToString()
+        Else
+            PathLabel.Text = "No node selected."
+        End If
+    End Sub
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
+        Using aboutBox As New AboutBox1
+            aboutBox.ShowDialog(Me)
+        End Using
     End Sub
 End Class

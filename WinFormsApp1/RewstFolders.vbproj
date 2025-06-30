@@ -6,17 +6,32 @@
     <StartupObject>Sub Main</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
     <MyType>WindowsForms</MyType>
-    <ApplicationIcon>rewsty[1].ico</ApplicationIcon>
+    <ApplicationIcon>rewst-icon.ico</ApplicationIcon>
+    <PackageProjectUrl>https://github.com/ReedK-DFT/RewstFolders-App</PackageProjectUrl>
+    <PackageIcon>rewst-icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/ReedK-DFT/RewstFolders-App</RepositoryUrl>
+    <PackageTags>rewst;app</PackageTags>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Description>Allows you to browse your Rewst workflows in a folder view generated from tags.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="rewsty[1].ico" />
+    <Content Include="rewst-icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <Import Include="System.Data" />
     <Import Include="System.Drawing" />
     <Import Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +69,10 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+    <None Update="Resources\rewst-icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

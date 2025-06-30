@@ -11,19 +11,17 @@ Namespace My
     ' **NEW** ApplyApplicationDefaults: Raised when the application queries default values to be set for the application.
 
     ' Example:
-    ' Private Sub MyApplication_ApplyApplicationDefaults(sender As Object, e As ApplyApplicationDefaultsEventArgs) Handles Me.ApplyApplicationDefaults
-    '
-    '   ' Setting the application-wide default Font:
-    '   e.Font = New Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular)
-    '
-    '   ' Setting the HighDpiMode for the Application:
-    '   e.HighDpiMode = HighDpiMode.PerMonitorV2
-    '
-    '   ' If a splash dialog is used, this sets the minimum display time:
-    '   e.MinimumSplashScreenDisplayTime = 4000
-    ' End Sub
+
 
     Partial Friend Class MyApplication
+        Private Sub MyApplication_ApplyApplicationDefaults(sender As Object, e As ApplyApplicationDefaultsEventArgs) Handles Me.ApplyApplicationDefaults
+            e.HighDpiMode = HighDpiMode.PerMonitorV2
+        End Sub
 
+        Private Sub MyApplication_UnhandledException(sender As Object, e As UnhandledExceptionEventArgs) Handles Me.UnhandledException
+            If MessageBox.Show("Oh chicken-scratch! Something unexpected has gone wrong. Click OK to copy the details to the clipboard and post them to GitHub issues or email them to rkimble@dragonflytech.net, or else click Cancel to close the application.", "Fox in the Hen House", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) = DialogResult.OK Then
+                Clipboard.SetText(e.Exception.ToString())
+            End If
+        End Sub
     End Class
 End Namespace

@@ -25,6 +25,9 @@ Partial Class Form1
         components = New ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         TreeView1 = New TreeView()
+        ContextMenuStrip1 = New ContextMenuStrip(components)
+        CopyToolStripMenuItem = New ToolStripMenuItem()
+        GoToToolStripMenuItem = New ToolStripMenuItem()
         ImageList1 = New ImageList(components)
         MenuStrip1 = New MenuStrip()
         FileToolStripMenuItem = New ToolStripMenuItem()
@@ -32,10 +35,12 @@ Partial Class Form1
         ToolStripMenuItem1 = New ToolStripSeparator()
         ExitToolStripMenuItem = New ToolStripMenuItem()
         ViewToolStripMenuItem = New ToolStripMenuItem()
+        TagListToolStripMenuItem = New ToolStripMenuItem()
+        SearchToolStripMenuItem = New ToolStripMenuItem()
+        ToolStripMenuItem2 = New ToolStripSeparator()
         CollapseAllToolStripMenuItem = New ToolStripMenuItem()
         ExpandAllToolStripMenuItem = New ToolStripMenuItem()
         OptionsToolStripMenuItem = New ToolStripMenuItem()
-        SearchToolStripMenuItem = New ToolStripMenuItem()
         SettingsToolStripMenuItem = New ToolStripMenuItem()
         StatusStrip1 = New StatusStrip()
         StatusLabel = New ToolStripStatusLabel()
@@ -44,12 +49,17 @@ Partial Class Form1
         Label1 = New Label()
         SearchTextBox = New TextBox()
         Button1 = New Button()
+        ContentSplitContainer = New SplitContainer()
+        TagsListBox = New ListBox()
+        Label2 = New Label()
         SplitContainer2 = New SplitContainer()
+        PathLabel = New TextBox()
         TableLayoutPanel2 = New TableLayoutPanel()
         CloseResultsButton = New Button()
         ClearResultsButton = New Button()
         ResultsListBox = New ListBox()
-        ToolStripMenuItem2 = New ToolStripSeparator()
+        AboutToolStripMenuItem = New ToolStripMenuItem()
+        ContextMenuStrip1.SuspendLayout()
         MenuStrip1.SuspendLayout()
         StatusStrip1.SuspendLayout()
         CType(SplitContainer1, ComponentModel.ISupportInitialize).BeginInit()
@@ -57,6 +67,10 @@ Partial Class Form1
         SplitContainer1.Panel2.SuspendLayout()
         SplitContainer1.SuspendLayout()
         TableLayoutPanel1.SuspendLayout()
+        CType(ContentSplitContainer, ComponentModel.ISupportInitialize).BeginInit()
+        ContentSplitContainer.Panel1.SuspendLayout()
+        ContentSplitContainer.Panel2.SuspendLayout()
+        ContentSplitContainer.SuspendLayout()
         CType(SplitContainer2, ComponentModel.ISupportInitialize).BeginInit()
         SplitContainer2.Panel1.SuspendLayout()
         SplitContainer2.Panel2.SuspendLayout()
@@ -66,6 +80,7 @@ Partial Class Form1
         ' 
         ' TreeView1
         ' 
+        TreeView1.ContextMenuStrip = ContextMenuStrip1
         TreeView1.Dock = DockStyle.Fill
         TreeView1.HideSelection = False
         TreeView1.ImageIndex = 0
@@ -73,8 +88,27 @@ Partial Class Form1
         TreeView1.Location = New Point(0, 0)
         TreeView1.Name = "TreeView1"
         TreeView1.SelectedImageIndex = 0
-        TreeView1.Size = New Size(740, 491)
+        TreeView1.Size = New Size(740, 460)
         TreeView1.TabIndex = 0
+        ' 
+        ' ContextMenuStrip1
+        ' 
+        ContextMenuStrip1.ImageScalingSize = New Size(24, 24)
+        ContextMenuStrip1.Items.AddRange(New ToolStripItem() {CopyToolStripMenuItem, GoToToolStripMenuItem})
+        ContextMenuStrip1.Name = "ContextMenuStrip1"
+        ContextMenuStrip1.Size = New Size(143, 68)
+        ' 
+        ' CopyToolStripMenuItem
+        ' 
+        CopyToolStripMenuItem.Name = "CopyToolStripMenuItem"
+        CopyToolStripMenuItem.Size = New Size(142, 32)
+        CopyToolStripMenuItem.Text = "Copy"
+        ' 
+        ' GoToToolStripMenuItem
+        ' 
+        GoToToolStripMenuItem.Name = "GoToToolStripMenuItem"
+        GoToToolStripMenuItem.Size = New Size(142, 32)
+        GoToToolStripMenuItem.Text = "Go To..."
         ' 
         ' ImageList1
         ' 
@@ -123,43 +157,58 @@ Partial Class Form1
         ' 
         ' ViewToolStripMenuItem
         ' 
-        ViewToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {CollapseAllToolStripMenuItem, ExpandAllToolStripMenuItem})
+        ViewToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {TagListToolStripMenuItem, SearchToolStripMenuItem, ToolStripMenuItem2, CollapseAllToolStripMenuItem, ExpandAllToolStripMenuItem})
         ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
         ViewToolStripMenuItem.Size = New Size(65, 29)
         ViewToolStripMenuItem.Text = "View"
         ' 
+        ' TagListToolStripMenuItem
+        ' 
+        TagListToolStripMenuItem.CheckOnClick = True
+        TagListToolStripMenuItem.Image = My.Resources.Resources.Tag_16x
+        TagListToolStripMenuItem.Name = "TagListToolStripMenuItem"
+        TagListToolStripMenuItem.Size = New Size(206, 34)
+        TagListToolStripMenuItem.Text = "Tag List"
+        ' 
+        ' SearchToolStripMenuItem
+        ' 
+        SearchToolStripMenuItem.CheckOnClick = True
+        SearchToolStripMenuItem.Image = My.Resources.Resources.Search_noHalo_16x
+        SearchToolStripMenuItem.Name = "SearchToolStripMenuItem"
+        SearchToolStripMenuItem.Size = New Size(206, 34)
+        SearchToolStripMenuItem.Text = "Search"
+        ' 
+        ' ToolStripMenuItem2
+        ' 
+        ToolStripMenuItem2.Name = "ToolStripMenuItem2"
+        ToolStripMenuItem2.Size = New Size(203, 6)
+        ' 
         ' CollapseAllToolStripMenuItem
         ' 
+        CollapseAllToolStripMenuItem.Image = My.Resources.Resources.CollapseAll_16x
         CollapseAllToolStripMenuItem.Name = "CollapseAllToolStripMenuItem"
         CollapseAllToolStripMenuItem.Size = New Size(206, 34)
         CollapseAllToolStripMenuItem.Text = "Collapse All"
         ' 
         ' ExpandAllToolStripMenuItem
         ' 
+        ExpandAllToolStripMenuItem.Image = My.Resources.Resources.ExpandAll_16x
         ExpandAllToolStripMenuItem.Name = "ExpandAllToolStripMenuItem"
         ExpandAllToolStripMenuItem.Size = New Size(206, 34)
         ExpandAllToolStripMenuItem.Text = "Expand All"
         ' 
         ' OptionsToolStripMenuItem
         ' 
-        OptionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {SearchToolStripMenuItem, ToolStripMenuItem2, SettingsToolStripMenuItem})
+        OptionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {SettingsToolStripMenuItem, AboutToolStripMenuItem})
         OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem"
         OptionsToolStripMenuItem.Size = New Size(92, 29)
         OptionsToolStripMenuItem.Text = "Options"
-        ' 
-        ' SearchToolStripMenuItem
-        ' 
-        SearchToolStripMenuItem.CheckOnClick = True
-        SearchToolStripMenuItem.Image = CType(resources.GetObject("SearchToolStripMenuItem.Image"), Image)
-        SearchToolStripMenuItem.Name = "SearchToolStripMenuItem"
-        SearchToolStripMenuItem.Size = New Size(190, 34)
-        SearchToolStripMenuItem.Text = "Search"
         ' 
         ' SettingsToolStripMenuItem
         ' 
         SettingsToolStripMenuItem.Image = CType(resources.GetObject("SettingsToolStripMenuItem.Image"), Image)
         SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem"
-        SettingsToolStripMenuItem.Size = New Size(190, 34)
+        SettingsToolStripMenuItem.Size = New Size(270, 34)
         SettingsToolStripMenuItem.Text = "Settings..."
         ' 
         ' StatusStrip1
@@ -194,7 +243,7 @@ Partial Class Form1
         ' 
         ' SplitContainer1.Panel2
         ' 
-        SplitContainer1.Panel2.Controls.Add(SplitContainer2)
+        SplitContainer1.Panel2.Controls.Add(ContentSplitContainer)
         SplitContainer1.Size = New Size(740, 491)
         SplitContainer1.SplitterDistance = 43
         SplitContainer1.TabIndex = 6
@@ -246,6 +295,47 @@ Partial Class Form1
         Button1.TabIndex = 2
         Button1.UseVisualStyleBackColor = True
         ' 
+        ' ContentSplitContainer
+        ' 
+        ContentSplitContainer.Dock = DockStyle.Fill
+        ContentSplitContainer.FixedPanel = FixedPanel.Panel1
+        ContentSplitContainer.Location = New Point(0, 0)
+        ContentSplitContainer.Name = "ContentSplitContainer"
+        ' 
+        ' ContentSplitContainer.Panel1
+        ' 
+        ContentSplitContainer.Panel1.Controls.Add(TagsListBox)
+        ContentSplitContainer.Panel1.Controls.Add(Label2)
+        ContentSplitContainer.Panel1Collapsed = True
+        ' 
+        ' ContentSplitContainer.Panel2
+        ' 
+        ContentSplitContainer.Panel2.Controls.Add(SplitContainer2)
+        ContentSplitContainer.Size = New Size(740, 491)
+        ContentSplitContainer.SplitterDistance = 176
+        ContentSplitContainer.TabIndex = 2
+        ' 
+        ' TagsListBox
+        ' 
+        TagsListBox.Dock = DockStyle.Fill
+        TagsListBox.FormattingEnabled = True
+        TagsListBox.IntegralHeight = False
+        TagsListBox.ItemHeight = 25
+        TagsListBox.Location = New Point(0, 25)
+        TagsListBox.Name = "TagsListBox"
+        TagsListBox.Size = New Size(176, 75)
+        TagsListBox.TabIndex = 0
+        ' 
+        ' Label2
+        ' 
+        Label2.Dock = DockStyle.Top
+        Label2.Location = New Point(0, 0)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(176, 25)
+        Label2.TabIndex = 1
+        Label2.Text = "Tag List"
+        Label2.TextAlign = ContentAlignment.TopCenter
+        ' 
         ' SplitContainer2
         ' 
         SplitContainer2.Dock = DockStyle.Fill
@@ -255,6 +345,7 @@ Partial Class Form1
         ' SplitContainer2.Panel1
         ' 
         SplitContainer2.Panel1.Controls.Add(TreeView1)
+        SplitContainer2.Panel1.Controls.Add(PathLabel)
         ' 
         ' SplitContainer2.Panel2
         ' 
@@ -263,6 +354,15 @@ Partial Class Form1
         SplitContainer2.Size = New Size(740, 491)
         SplitContainer2.SplitterDistance = 443
         SplitContainer2.TabIndex = 1
+        ' 
+        ' PathLabel
+        ' 
+        PathLabel.Dock = DockStyle.Bottom
+        PathLabel.Location = New Point(0, 460)
+        PathLabel.Name = "PathLabel"
+        PathLabel.ReadOnly = True
+        PathLabel.Size = New Size(740, 31)
+        PathLabel.TabIndex = 1
         ' 
         ' TableLayoutPanel2
         ' 
@@ -314,10 +414,11 @@ Partial Class Form1
         ResultsListBox.Size = New Size(287, 26)
         ResultsListBox.TabIndex = 2
         ' 
-        ' ToolStripMenuItem2
+        ' AboutToolStripMenuItem
         ' 
-        ToolStripMenuItem2.Name = "ToolStripMenuItem2"
-        ToolStripMenuItem2.Size = New Size(187, 6)
+        AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
+        AboutToolStripMenuItem.Size = New Size(270, 34)
+        AboutToolStripMenuItem.Text = "About..."
         ' 
         ' Form1
         ' 
@@ -332,6 +433,7 @@ Partial Class Form1
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
         Text = "[REWST] - Folders!"
+        ContextMenuStrip1.ResumeLayout(False)
         MenuStrip1.ResumeLayout(False)
         MenuStrip1.PerformLayout()
         StatusStrip1.ResumeLayout(False)
@@ -342,7 +444,12 @@ Partial Class Form1
         SplitContainer1.ResumeLayout(False)
         TableLayoutPanel1.ResumeLayout(False)
         TableLayoutPanel1.PerformLayout()
+        ContentSplitContainer.Panel1.ResumeLayout(False)
+        ContentSplitContainer.Panel2.ResumeLayout(False)
+        CType(ContentSplitContainer, ComponentModel.ISupportInitialize).EndInit()
+        ContentSplitContainer.ResumeLayout(False)
         SplitContainer2.Panel1.ResumeLayout(False)
+        SplitContainer2.Panel1.PerformLayout()
         SplitContainer2.Panel2.ResumeLayout(False)
         CType(SplitContainer2, ComponentModel.ISupportInitialize).EndInit()
         SplitContainer2.ResumeLayout(False)
@@ -366,7 +473,6 @@ Partial Class Form1
     Friend WithEvents Label1 As Label
     Friend WithEvents SearchTextBox As TextBox
     Friend WithEvents Button1 As Button
-    Friend WithEvents SearchToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SplitContainer2 As SplitContainer
     Friend WithEvents TableLayoutPanel2 As TableLayoutPanel
     Friend WithEvents CloseResultsButton As Button
@@ -376,6 +482,16 @@ Partial Class Form1
     Friend WithEvents ViewToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents CollapseAllToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ExpandAllToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ContentSplitContainer As SplitContainer
+    Friend WithEvents TagsListBox As ListBox
+    Friend WithEvents TagListToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents Label2 As Label
+    Friend WithEvents SearchToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem2 As ToolStripSeparator
+    Friend WithEvents ContextMenuStrip1 As ContextMenuStrip
+    Friend WithEvents CopyToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents GoToToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents PathLabel As TextBox
+    Friend WithEvents AboutToolStripMenuItem As ToolStripMenuItem
 
 End Class
