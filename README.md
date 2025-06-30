@@ -3,7 +3,7 @@
 ### Desktop App
 A lightweight .Net Portable App written in VB .Net providing access to your Rewst workflows in a folder view generated from workflow tags, including a term in square brackets at the beginning of the workflow's name.
 
-### Version 1.0.1.0 Update Notes
+### Version 1.1 Update Notes
 
  - Added unhandled exception handling
  - Added error handling for workflow execution error
