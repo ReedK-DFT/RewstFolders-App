@@ -42,6 +42,7 @@ Partial Class Form1
         ExpandAllToolStripMenuItem = New ToolStripMenuItem()
         OptionsToolStripMenuItem = New ToolStripMenuItem()
         SettingsToolStripMenuItem = New ToolStripMenuItem()
+        AboutToolStripMenuItem = New ToolStripMenuItem()
         StatusStrip1 = New StatusStrip()
         StatusLabel = New ToolStripStatusLabel()
         SplitContainer1 = New SplitContainer()
@@ -58,7 +59,6 @@ Partial Class Form1
         CloseResultsButton = New Button()
         ClearResultsButton = New Button()
         ResultsListBox = New ListBox()
-        AboutToolStripMenuItem = New ToolStripMenuItem()
         ContextMenuStrip1.SuspendLayout()
         MenuStrip1.SuspendLayout()
         StatusStrip1.SuspendLayout()
@@ -118,6 +118,7 @@ Partial Class Form1
         ImageList1.Images.SetKeyName(0, "Folder_16x.png")
         ImageList1.Images.SetKeyName(1, "FolderOpen_16x.png")
         ImageList1.Images.SetKeyName(2, "WorkflowActivity_16x.png")
+        ImageList1.Images.SetKeyName(3, "FormPostBodyStringnode_16x.png")
         ' 
         ' MenuStrip1
         ' 
@@ -208,8 +209,14 @@ Partial Class Form1
         ' 
         SettingsToolStripMenuItem.Image = CType(resources.GetObject("SettingsToolStripMenuItem.Image"), Image)
         SettingsToolStripMenuItem.Name = "SettingsToolStripMenuItem"
-        SettingsToolStripMenuItem.Size = New Size(270, 34)
+        SettingsToolStripMenuItem.Size = New Size(190, 34)
         SettingsToolStripMenuItem.Text = "Settings..."
+        ' 
+        ' AboutToolStripMenuItem
+        ' 
+        AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
+        AboutToolStripMenuItem.Size = New Size(190, 34)
+        AboutToolStripMenuItem.Text = "About..."
         ' 
         ' StatusStrip1
         ' 
@@ -413,12 +420,6 @@ Partial Class Form1
         ResultsListBox.Name = "ResultsListBox"
         ResultsListBox.Size = New Size(287, 26)
         ResultsListBox.TabIndex = 2
-        ' 
-        ' AboutToolStripMenuItem
-        ' 
-        AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        AboutToolStripMenuItem.Size = New Size(270, 34)
-        AboutToolStripMenuItem.Text = "About..."
         ' 
         ' Form1
         ' 

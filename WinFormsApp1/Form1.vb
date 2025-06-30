@@ -1,7 +1,5 @@
-﻿Imports System.Globalization
-Imports System.Net.Http
+﻿Imports System.Net.Http
 Imports System.Text
-Imports System.Text.Json
 Imports System.Text.Json.Nodes
 Imports RewstFolders.Folders
 
@@ -23,9 +21,9 @@ Public Class Form1
                 For Each item In items
                     Dim itemName = item.Item("name").AsValue.ToString.Trim
                     If itemName.StartsWith("[") Then
-                        Dim newtag = NormalizeName(itemName.Substring(1, itemName.IndexOf("]") - 1))
+                        Dim newtag = Workflow.NormalizeName(itemName.Substring(1, itemName.IndexOf("]") - 1))
                         For Each t In item.Item("tags").AsArray()
-                            If NormalizeName(t.Item("name").AsValue.ToString) = newtag Then
+                            If Workflow.NormalizeName(t.Item("name").AsValue.ToString) = newtag Then
                                 newtag = String.Empty
                                 Exit For
                             End If
@@ -48,7 +46,7 @@ Public Class Form1
                             tagList.Add(t.Item("name").AsValue.ToString, t)
                         End If
                     Next
-                    Dim tags = (From t In item.Item("tags").AsArray Select NormalizeName(t.Item("name").AsValue.ToString))
+                    Dim tags = (From t In item.Item("tags").AsArray Select Workflow.NormalizeName(t.Item("name").AsValue.ToString))
                     Dim index As New TagIndex(tags)
                     If Not folders.Contains(index) Then
                         Dim Folder = New Folders.Folder
@@ -58,20 +56,30 @@ Public Class Form1
                     End If
                 Next
 
+                Dim getImageIndex As Func(Of Workflow, Integer) = Function(wfo As Workflow) As Integer
+                                                                      Select Case wfo.Type
+                                                                          Case WorkflowType.Workflow
+                                                                              Return 2 ' Workflow icon
+                                                                          Case WorkflowType.Form
+                                                                              Return 3 ' Form icon
+                                                                          Case Else
+                                                                              Return 0 ' Default icon for unknown types
+                                                                      End Select
+                                                                  End Function
                 If folders.Count > 0 Then
                     TreeView1.Nodes.Clear()
 
                     For Each item In items
-                        Dim itemTags = (From t In item.Item("tags").AsArray Select NormalizeName(t.Item("name").AsValue.ToString))
-                        Dim itemIndex As New TagIndex(itemTags)
-                        Dim nodeName = Convert.ToBase64String(Encoding.UTF8.GetBytes(item.Item("name").AsValue.ToJsonString))
-                        If itemIndex.Count = 0 Then
-                            Dim workflowNode As New TreeNode(item.Item("name").AsValue.ToString) With {.ImageIndex = 2, .SelectedImageIndex = 2, .Tag = item, .Name = nodeName}
+                        Dim wfo As New Workflow(item)
+                        Dim nodeName = Convert.ToBase64String(Encoding.UTF8.GetBytes(wfo.Name))
+                        If wfo.Index.Count = 0 Then
+                            Dim imageIndex = getImageIndex(wfo)
+                            Dim workflowNode As New TreeNode(wfo.Name) With {.ImageIndex = imageIndex, .SelectedImageIndex = imageIndex, .Tag = wfo, .Name = nodeName}
                             TreeView1.Nodes.Add(workflowNode)
                             AddToIndex(workflowNode)
                         Else
                             For Each folder In folders
-                                If folder.Index.Equals(itemIndex) Then
+                                If folder.Index.Equals(wfo.Index) Then
                                     Dim curNodes = TreeView1.Nodes
                                     Dim tags = folder.Index.ToList()
                                     For Each t In tags
@@ -85,7 +93,8 @@ Public Class Form1
                                         End If
                                     Next
                                     If Not curNodes.ContainsKey(nodeName) Then
-                                        Dim workflowNode As New TreeNode(item.Item("name").AsValue.ToString) With {.ImageIndex = 2, .SelectedImageIndex = 2, .Tag = item, .Name = nodeName}
+                                        Dim imageIndex = getImageIndex(wfo)
+                                        Dim workflowNode As New TreeNode(wfo.Name) With {.ImageIndex = imageIndex, .SelectedImageIndex = imageIndex, .Tag = wfo, .Name = nodeName}
                                         curNodes.Add(workflowNode)
                                         AddToIndex(workflowNode)
                                     End If
@@ -124,17 +133,6 @@ Public Class Form1
         End Try
     End Function
 
-    Private Function NormalizeName(name As String) As String
-        Dim normalized = name.Trim().ToLower()
-        Dim parts = normalized.Split(" "c, StringSplitOptions.RemoveEmptyEntries Or StringSplitOptions.TrimEntries)
-        For i = 0 To parts.Length - 1
-            parts(i) = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parts(i))
-        Next
-        normalized = String.Join(" ", parts)
-        If normalized.StartsWith("[") AndAlso Not normalized.Contains("]") Then normalized = normalized.Substring(1)
-        Return normalized
-    End Function
-
     Private Sub AddToIndex(node As TreeNode)
         If Not nameIndex.ContainsKey(node.Text) Then
             nameIndex(node.Text) = New List(Of TreeNode)()
@@ -143,15 +141,15 @@ Public Class Form1
     End Sub
 
     Private Function GetNodeUrl(node As TreeNode) As String
-        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is JsonObject Then
-            Dim item As JsonObject = CType(node.Tag, JsonObject)
-            Return $"https://app.rewst.io/organizations/{item.Item("org").Item("id").AsValue.ToString}/workflows/{item.Item("id").AsValue.ToString}"
+        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is Workflow Then
+            Dim wfo As Workflow = CType(node.Tag, Workflow)
+            Return $"https://app.rewst.io/organizations/{wfo.OrgId}/{wfo.Type.ToString.ToLower}s/{wfo.Id}"
         End If
         Return String.Empty
     End Function
 
     Private Sub NavigateToNode(node As TreeNode)
-        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is JsonObject Then
+        If node?.Tag IsNot Nothing AndAlso TypeOf node?.Tag Is Workflow Then
             Dim url As String = GetNodeUrl(node)
             Process.Start(New ProcessStartInfo("cmd", $"/c start {url}") With {.CreateNoWindow = True, .UseShellExecute = False})
         End If
@@ -196,12 +194,6 @@ Public Class Form1
         Using dlg As New SettingsDialog
             If dlg.ShowDialog(Me) = DialogResult.OK Then
                 Me.Font = My.Settings.Font
-                'This didn't work, but the setting still exists along with the attempt to implement it.
-                'If My.Settings.DarkMode Then
-                '    SettingsDialog.SetDarkMode(Me, True)
-                'Else
-                '    SettingsDialog.SetDarkMode(Me, False)
-                'End If
             End If
         End Using
     End Sub

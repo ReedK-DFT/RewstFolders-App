@@ -1,4 +1,5 @@
 ﻿Imports System.Collections.ObjectModel
+Imports System.Globalization
 Imports System.Text.Json.Nodes
 
 Namespace Folders
@@ -14,15 +15,33 @@ Namespace Folders
         Public ReadOnly Property Id As String
         Public ReadOnly Property OrgId As String
         Public ReadOnly Property Index As New TagIndex
+        Public ReadOnly Property Type As WorkflowType
         Public Sub New(jsonObj As JsonObject)
-            Me.Name = jsonObj.Item("name").AsValue.ToJsonString
-            Me.Id = jsonObj.Item("id").AsValue.ToJsonString
-            Me.OrgId = jsonObj.Item("org").Item("id").AsValue.ToJsonString
+            Me.Name = jsonObj.Item("name").AsValue.ToString
+            Me.Id = jsonObj.Item("id").AsValue.ToString
+            Me.OrgId = jsonObj.Item("org").Item("id").AsValue.ToString
             For Each tag In jsonObj.Item("tags").AsArray
-                Me.Index.Add(tag.AsValue.ToJsonString)
+                Me.Index.Add(NormalizeName(tag.Item("name").AsValue.ToString))
             Next
+            Me.Type = [Enum].Parse(GetType(WorkflowType), jsonObj.Item("type").AsValue.ToString, True)
         End Sub
+        Public Shared Function NormalizeName(name As String) As String
+            Dim normalized = name.Trim().ToLower()
+            Dim parts = normalized.Split(" "c, StringSplitOptions.RemoveEmptyEntries Or StringSplitOptions.TrimEntries)
+            For i = 0 To parts.Length - 1
+                parts(i) = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parts(i))
+            Next
+            normalized = String.Join(" ", parts)
+            If normalized.StartsWith("[") AndAlso Not normalized.Contains("]") Then normalized = normalized.Substring(1)
+            Return normalized
+        End Function
+
     End Class
+
+    Public Enum WorkflowType
+        Workflow = 0
+        Form = 1
+    End Enum
 
     Public Class TagIndex
         Implements IList(Of String)

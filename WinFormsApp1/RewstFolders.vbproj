@@ -12,8 +12,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ReedK-DFT/RewstFolders-App</RepositoryUrl>
     <PackageTags>rewst;app</PackageTags>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
     <Description>Allows you to browse your Rewst workflows in a folder view generated from tags.</Description>
   </PropertyGroup>
 

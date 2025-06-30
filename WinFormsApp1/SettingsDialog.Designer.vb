@@ -32,7 +32,6 @@ Partial Class SettingsDialog
         TextBox2 = New TextBox()
         Label3 = New Label()
         FontButton = New Button()
-        DarkModeCheckBox = New CheckBox()
         FontDialog1 = New FontDialog()
         TableLayoutPanel1.SuspendLayout()
         TableLayoutPanel2.SuspendLayout()
@@ -85,14 +84,12 @@ Partial Class SettingsDialog
         TableLayoutPanel2.Controls.Add(TextBox2, 1, 1)
         TableLayoutPanel2.Controls.Add(Label3, 0, 2)
         TableLayoutPanel2.Controls.Add(FontButton, 1, 2)
-        TableLayoutPanel2.Controls.Add(DarkModeCheckBox, 0, 3)
         TableLayoutPanel2.Location = New Point(12, 12)
         TableLayoutPanel2.Name = "TableLayoutPanel2"
-        TableLayoutPanel2.RowCount = 4
+        TableLayoutPanel2.RowCount = 3
         TableLayoutPanel2.RowStyles.Add(New RowStyle())
         TableLayoutPanel2.RowStyles.Add(New RowStyle())
         TableLayoutPanel2.RowStyles.Add(New RowStyle())
-        TableLayoutPanel2.RowStyles.Add(New RowStyle(SizeType.Absolute, 20F))
         TableLayoutPanel2.Size = New Size(701, 119)
         TableLayoutPanel2.TabIndex = 1
         ' 
@@ -137,7 +134,7 @@ Partial Class SettingsDialog
         ' 
         Label3.Anchor = AnchorStyles.Right
         Label3.AutoSize = True
-        Label3.Location = New Point(97, 81)
+        Label3.Location = New Point(97, 84)
         Label3.Name = "Label3"
         Label3.Size = New Size(48, 25)
         Label3.TabIndex = 4
@@ -146,25 +143,12 @@ Partial Class SettingsDialog
         ' FontButton
         ' 
         FontButton.Anchor = AnchorStyles.None
-        FontButton.Location = New Point(368, 77)
+        FontButton.Location = New Point(368, 79)
         FontButton.Name = "FontButton"
         FontButton.Size = New Size(112, 34)
         FontButton.TabIndex = 5
         FontButton.Text = "Font"
         FontButton.UseVisualStyleBackColor = True
-        ' 
-        ' DarkModeCheckBox
-        ' 
-        DarkModeCheckBox.Anchor = AnchorStyles.Left
-        DarkModeCheckBox.AutoSize = True
-        DarkModeCheckBox.CheckAlign = ContentAlignment.MiddleRight
-        DarkModeCheckBox.Location = New Point(3, 117)
-        DarkModeCheckBox.Name = "DarkModeCheckBox"
-        DarkModeCheckBox.Size = New Size(127, 14)
-        DarkModeCheckBox.TabIndex = 6
-        DarkModeCheckBox.Text = "Dark Mode"
-        DarkModeCheckBox.UseVisualStyleBackColor = True
-        DarkModeCheckBox.Visible = False
         ' 
         ' SettingsDialog
         ' 
@@ -200,6 +184,5 @@ Partial Class SettingsDialog
     Friend WithEvents Label3 As Label
     Friend WithEvents FontButton As Button
     Friend WithEvents FontDialog1 As FontDialog
-    Friend WithEvents DarkModeCheckBox As CheckBox
 
 End Class
